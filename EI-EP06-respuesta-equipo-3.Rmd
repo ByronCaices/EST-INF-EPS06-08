@@ -1,0 +1,95 @@
+---
+title: "EI-EP06-respuesta-equipo-3"
+author: "Equipo 2"
+date: "2024-10-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Un equipo de investigadores del área de interacción humano-información está estudiando si el área temática y el nivel de dificultad del problema de información influyen en el tiempo (en segundos) que toma un usuario en formular una consulta de búsqueda para resolver dicho problema. Para ello, han reclutado a un grupo de participantes voluntarios, asignados aleatoriamente a distintos grupos. Cada participante debe resolver tres problemas de información con diferentes niveles de dificultad: baja, media y alta. A su vez, cada grupo debe resolver problemas relacionados a una temática diferente. Los datos recolectados contemplan las siguientes variables:
+
+| Variable | Descripción |
+|:----------------------------:|:---------------------------------------:|
+| id | Identificador único de cada participante |
+| area | Área temática de los problemas que el participante debe responder. Variable categórica con los niveles Arquitectura, Biología, Computación, Economía, Física, Leyes, Literatura, Matemáticas, Música, Pedagogía, Psicología, Química. |
+| dificultad | Nivel de dificultad del problema resuelto. Variable categórica con los niveles Baja, Media y Alta. |
+| tiempo | Tiempo, en segundos, que toma al participante formular la consulta. |
+
+En este momento, los investigadores buscan determinar si existen diferencias en el tiempo que tardan los usuarios en formular consultas para problemas con diferente nivel de dificultad en el área de química.
+
+En base a lo entregado por el enunciado, ...
+
+
+Para verificar la condición de normalidad, se lleva a cabo el siguiente gráfico Q-Q
+
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+library(dplyr)
+library(nlme)
+library(ez)
+library(emmeans)
+
+datos <- read.csv("EP06 Datos.csv")
+
+datos <- subset(datos, area %in% "Química", select = c(id,area,tiempo, dificultad))
+
+# Convertir Time a factor
+datos[["dificultad"]] <- factor(datos[["dificultad"]])
+
+
+# Graficar Q-Q plot
+g <- ggqqplot(datos, x = "tiempo", color = "dificultad")
+g <- g + facet_wrap(~ dificultad, scales = "free")
+g <- g + rremove("x.ticks") + rremove("x.text")
+g <- g + rremove("y.ticks") + rremove("y.text")
+g <- g + rremove("axis.title")
+print(g)
+```
+
+En éste, se puede apreciar que..., por lo que se lleva a cabo una ...
+
+```{r}
+testNormalidad <- datos %>%
+  group_by(dificultad) %>%
+  summarise(shapiro_p_value = shapiro.test(tiempo)$p.value)
+
+# Mostrar los resultados
+print(testNormalidad)
+```
+
+Por último, se verifica la esfericidad por medio de...
+
+
+
+Con lo anterior, se demuestra que es posible llevar a cabo la prueba ANOVA para muestras correlacionadas, y que los resultados entregados a partir de ésta sean confiables.
+
+Para ello, se definen las siguientes hipótesis nula y ...
+
+```{r}
+anova <- ezANOVA(data = datos, dv = tiempo, within = dificultad,
+                  wid = id, return_aov = TRUE)
+
+# Imprimir resultados del ANOVA
+cat("\nResultados del ANOVA:\n")
+print(anova)
+```
+
+En base al p-value obtenido, se puede concluir que....
+Sin embargo, la información entregada por la prueba solamente indica que existe al menos una diferencia de medias distinta a las otras, sin indicar cuál, por lo que se llega a cabo el análisis *post-hoc* utilizando la prueba HSD de Tukey, dado que es el procedimiento más robusto para ....
+
+```{r}
+# Procedimiento post-hoc HSD de Tukey
+mixto <- lme(tiempo ~ dificultad, data = datos, random = ~1|id)
+medias <- emmeans(mixto, "dificultad")
+tukey <- pairs(medias, adjust = "tukey")
+
+cat("\n\nPrueba HSD de Tukey:\n\n")
+print(tukey)
+```
+
+En base a los resultados entregados, es posible concluir que **si existen diferencias en el tiempo que tardan los usuarios en formular consultas para problemas con diferente nivel de dificultad en el área de química.**
