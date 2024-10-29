@@ -429,9 +429,9 @@ formular consultas para problemas con diferente nivel de dificultad en
 el área de química.</p></li>
 </ul>
 <hr />
-<p>En base a lo entregado por el enunciado…</p>
-<p>Procederemos a leer y filtrar los datos para posteriormente verificar
-la condición de normalidad, se lleva a cabo el siguiente gráfico Q-Q</p>
+<p>En base a lo entregado por el enunciado procederemos a leer y filtrar
+los datos para posteriormente verificar la condición de normalidad, se
+lleva a cabo el siguiente gráfico Q-Q</p>
 <hr />
 <pre class="r"><code>datos &lt;- read.csv(&quot;EP06 Datos.csv&quot;)
 
@@ -477,11 +477,12 @@ magnitud física, tiene una escala de intervalos iguales</li>
 </ul>
 <hr />
 <ol start="2" style="list-style-type: decimal">
-<li><strong>Las mediciones son indepentes al interior de cada
+<li><strong>Las mediciones son independientes al interior de cada
 grupo</strong></li>
 </ol>
 <ul>
-<li>[REALIZAR]</li>
+<li>El enunciado sugiere que el proceso seguido para obtener los datos
+garantiza el cumplimiento de la segunda condición</li>
 </ul>
 <hr />
 <ol start="3" style="list-style-type: decimal">
@@ -541,9 +542,9 @@ mauchly &lt;- ezANOVA(data = datos, dv = tiempo, within = dificultad, wid = id, 
 <pre class="r"><code>print(mauchly[[&quot;Mauchly&#39;s Test for Sphericity&quot;]])</code></pre>
 <pre><code>##       Effect         W         p p&lt;.05
 ## 2 dificultad 0.9899065 0.3662881</code></pre>
-<p>Con lo anterior, se demuestra que es posible llevar a cabo la prueba
-ANOVA para muestras correlacionadas, y que los resultados entregados a
-partir de ésta sean confiables.</p>
+<p>Con lo anterior, como p &gt; 0.05 se demuestra que es posible llevar
+a cabo la prueba ANOVA para muestras correlacionadas, y que los
+resultados entregados a partir de ésta sean confiables.</p>
 <hr />
 </div>
 <div id="análisis-de-varianza-anova" class="section level4">
@@ -593,11 +594,25 @@ cat(&quot;\nResultados del ANOVA:\n&quot;)</code></pre>
 ## 
 ## Residual standard error: 7.893369
 ## Estimated effects may be unbalanced</code></pre>
-<p>En base al p-value obtenido, se puede concluir que…. Sin embargo, la
-información entregada por la prueba solamente indica que existe al menos
-una diferencia de medias distinta a las otras, sin indicar cuál, por lo
-que se llega a cabo el análisis <em>post-hoc</em> utilizando la prueba
-HSD de Tukey, dado que es el procedimiento más robusto para ….</p>
+<hr />
+<p>Dado que <span class="math inline">\(p = 7.383407 \times
+10^{-9}\)</span> es significativamente menor que el nivel de
+significancia <span class="math inline">\(\alpha = 0.05\)</span>. En
+este caso, tenemos suficiente evidencia para rechazar la hipótesis nula
+(<span class="math inline">\(H_0\)</span>).</p>
+<p>Rechazamos la hipótesis nula y aceptamos la hipótesis alternativa
+(<span class="math inline">\(H_A\)</span>), lo que indica que existen
+diferencias significativas en el tiempo que tardan los usuarios en
+formular consultas para problemas con diferentes niveles de dificultad
+en el área de química.</p>
+<p>Sin embargo, la información entregada por la prueba solamente indica
+que existe al menos una diferencia de medias distinta a las otras, sin
+indicar cuál, por lo que se lleva a cabo el análisis
+<strong>Post-Hoc</strong> utilizando la prueba HSD de Tukey.</p>
+<hr />
+</div>
+<div id="prueba-post-hoc-hsd-de-tukey" class="section level4">
+<h4><strong>Prueba post-hoc: HSD de Tukey</strong></h4>
 <pre class="r"><code># Procedimiento post-hoc HSD de Tukey
 mixto &lt;- lme(tiempo ~ dificultad, data = datos, random = ~1|id)
 medias &lt;- emmeans(mixto, &quot;dificultad&quot;)
@@ -615,10 +630,32 @@ cat(&quot;\n\nPrueba HSD de Tukey:\n\n&quot;)</code></pre>
 ## 
 ## Degrees-of-freedom method: containment 
 ## P value adjustment: tukey method for comparing a family of 3 estimates</code></pre>
-<p>En base a los resultados entregados, es posible concluir que
-<strong>si existen diferencias en el tiempo que tardan los usuarios en
-formular consultas para problemas con diferente nivel de dificultad en
-el área de química.</strong></p>
+<hr />
+<p>En la salida de la prueba post hoc de HSD de Tukey, se muestran
+comparaciones entre los diferentes niveles de dificultad (Alta, Baja,
+Media) y los tiempos que tardan los usuarios en formular consultas. Las
+conclusiones principales se pueden extraer observando el valor <span class="math inline">\(p\)</span> en cada comparación:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Alta - Baja</strong>: La diferencia en tiempo entre los
+niveles de dificultad Alta y Baja tiene un valor <span class="math inline">\(p\)</span> muy bajo (0.0001), lo que indica que
+esta diferencia es estadísticamente significativa.</p></li>
+<li><p><strong>Alta - Media</strong>: La diferencia entre los niveles de
+dificultad Alta y Media tiene un valor <span class="math inline">\(p\)</span> de 0.8891, el cual es mucho mayor que
+0.05. Esto indica que no hay una diferencia significativa en el tiempo
+entre estos dos niveles.</p></li>
+<li><p><strong>Baja - Media</strong>: La comparación entre los niveles
+Baja y Media también tiene un valor <span class="math inline">\(p\)</span> muy bajo (0.0001), lo que indica una
+diferencia estadísticamente significativa en el tiempo entre estos
+niveles.</p></li>
+</ol>
+<p><strong>Conclusión</strong>: Existen diferencias significativas en el
+tiempo para formular consultas entre las dificultades “Alta - Baja” y
+“Baja - Media”, pero no hay una diferencia significativa entre las
+dificultades “Alta - Media”. Esto sugiere que los tiempos de respuesta
+entre las dificultades Alta y Baja, así como entre Baja y Media, son
+significativamente distintos, mientras que los tiempos entre Alta y
+Media son similares.</p>
+<hr />
 </div>
 </div>
 </div>
