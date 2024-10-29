@@ -1,0 +1,87 @@
+---
+title: "EP07"
+author: "Equipo 3"
+date: "2024-10-29"
+output:
+    html_document:
+    highlight: tango
+    word_document: default
+    pdf_document: default
+---
+
+<style>
+body {
+  font-family: 'Calibri', sans-serif;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Enunciado**
+
+---------
+
+### **pregunta**
+
+----------
+
+#### **Hipótesis**
+
+- \(H_0:\) 
+
+- \(H_A:\) 
+
+----------
+
+
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggpubr)
+library(dplyr)
+library(nlme)
+library(ez)
+library(emmeans)
+```
+
+-----------
+
+```{r}
+datos <- read.csv("EP07 Datos.csv")
+
+head(datos)
+```
+
+-----------
+
+Para responder esta pregunta requerimos filtrar los datos para obtener las observaciones para el área de química.
+
+-----------
+
+```{r}
+
+```
+
+------------
+
+#### **Condiciones a verificar**
+
+**El procedimiento _________ requiere que se cumplan algunas condiciones:**
+
+1. **a**
+
+
+ 
+-------------
+
+2. **a**
+
+
+-------------
+
+3. **a**
+
+
+---------
