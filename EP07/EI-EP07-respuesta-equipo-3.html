@@ -373,19 +373,7 @@ enfrentar el análisis de estos datos, por que está solicitando ayuda de
 las y los estudiantes de Estadística Inferencial.</p>
 <p>Para poder responder las preguntas que serán planteadas, primero se
 leen los datos del archivo <code>EP07 Datos.csv</code>.</p>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
-## ✔ purrr     1.0.2     
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()
-## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
 <pre class="r"><code>datos &lt;- read.csv(&quot;EP07 Datos.csv&quot;)
-
 head(datos)</code></pre>
 <pre><code>##   instancia n.nodos n.aristas tiempo.A tiempo.B tiempo.C mejor.A mejor.B
 ## 1         1      50       631   107534   452595   257485   98.72   98.25
@@ -402,11 +390,12 @@ head(datos)</code></pre>
 ## 5   98.14
 ## 6   98.04</code></pre>
 <hr />
-<div id="pregunta-1-observando-los-datos-la-memorista-sospecha-que-hay-diferencias-significativas-en-el-tiempo-de-ejecución-entre-las-versiones-a-y-c-del-algoritmo-cuando-las-instancias-tienen-60-o-más-nodos.-los-datos-respaldan-la-intuición-de-la-memorista" class="section level4">
-<h4><strong>Pregunta 1: Observando los datos, la memorista sospecha que
+<div id="pregunta-1-observando-los-datos-la-memorista-sospecha-que-hay-diferencias-significativas-en-el-tiempo-de-ejecución-entre-las-versiones-a-y-c-del-algoritmo-cuando-las-instancias-tienen-60-o-más-nodos.-los-datos-respaldan-la-intuición-de-la-memorista" class="section level3">
+<h3><strong>Pregunta 1: Observando los datos, la memorista sospecha que
 hay diferencias significativas en el tiempo de ejecución entre las
 versiones A y C del algoritmo cuando las instancias tienen 60 o más
-nodos. ¿Los datos respaldan la intuición de la memorista?</strong></h4>
+nodos. ¿Los datos respaldan la intuición de la memorista?</strong></h3>
+<blockquote>
 <p>Para responder, filtren los datos para tener las instancias con 60 o
 más nodos y seleccionen las columnas de los tiempos de ejecución de las
 versiones A y C en formato ancho. Usando como semilla el valor 73,
@@ -416,9 +405,48 @@ Realicen un análisis estadístico pertinente (enunciar hipótesis, revisar
 condiciones, seleccionar pruebas ómnibus y post-hoc según corresponda)
 para responder la pregunta planteada, utilizando pruebas no paramétricas
 de ser necesario.</p>
-</div>
+</blockquote>
 <div id="respuesta-pregunta-1" class="section level4">
 <h4><strong>Respuesta Pregunta 1</strong></h4>
+<p><strong>Determinación de Variables Independientes o
+Relacionadas:</strong></p>
+<ul>
+<li><strong>Variables Analizadas:</strong>
+<ul>
+<li>Tiempo de ejecución de la versión A.</li>
+<li>Tiempo de ejecución de la versión C.</li>
+</ul></li>
+<li><strong>Procedimiento de Muestreo:</strong>
+<ul>
+<li>Se extraen muestras aleatorias <strong>independientes</strong> de
+los tiempos de ejecución de cada versión.</li>
+<li>Las muestras de tiempos de A y C <strong>no necesariamente
+corresponden a las mismas instancias</strong>.</li>
+</ul></li>
+<li><strong>Análisis:</strong>
+<ul>
+<li>No hay emparejamiento entre los tiempos de A y C; es decir, el
+tiempo de la versión A para una instancia no está vinculado con el
+tiempo de la versión C para esa misma instancia.</li>
+<li>Las observaciones en un grupo no afectan ni están relacionadas con
+las observaciones en el otro grupo.</li>
+</ul></li>
+</ul>
+<p><strong>Conclusión:</strong></p>
+<ul>
+<li><strong>Variables Independientes:</strong>
+<ul>
+<li>Las muestras de tiempos de ejecución de las versiones A y C son
+<strong>independientes</strong>.</li>
+<li>Por lo tanto, se utiliza una prueba adecuada para comparar dos
+muestras independientes (en este caso, la <strong>Prueba de Sumas de
+Rangos de Wilcoxon</strong>).</li>
+</ul></li>
+</ul>
+<blockquote>
+<p>Posteriormente en el procedimiento recordar enunciar hipotesis y
+verificar condiciones.</p>
+</blockquote>
 <p>Para ello, primero se seleccionan todas aquellas observaciones con 60
 o más nodos y seleccionando las columnas <code>Tiempo_A</code> y
 <code>Tiempo_C</code>.</p>
@@ -442,11 +470,13 @@ muestras_A &lt;- sample(datos_filtrados1$tiempo.A, 24)
 muestras_C &lt;- sample(datos_filtrados1$tiempo.C, 20)</code></pre>
 <hr />
 </div>
-<div id="pregunta-2-la-memorista-también-sospecha-que-al-comparar-las-mismas-instancias-de-iguales-características-las-mejores-soluciones-encontradas-por-las-versiones-a-y-b-tienen-rendimientos-distintos.-estará-en-lo-cierto" class="section level4">
-<h4><strong>Pregunta 2: La memorista también sospecha que, al comparar
+</div>
+<div id="pregunta-2-la-memorista-también-sospecha-que-al-comparar-las-mismas-instancias-de-iguales-características-las-mejores-soluciones-encontradas-por-las-versiones-a-y-b-tienen-rendimientos-distintos.-estará-en-lo-cierto" class="section level3">
+<h3><strong>Pregunta 2: La memorista también sospecha que, al comparar
 las mismas instancias de iguales características, las mejores soluciones
 encontradas por las versiones A y B tienen rendimientos distintos.
-¿Estará en lo cierto?</strong></h4>
+¿Estará en lo cierto?</strong></h3>
+<blockquote>
 <p>Para responder, filtren los datos para tener las instancias con 60 o
 más nodos y seleccionen las columnas con el mejor rendimiento de las
 versiones A y B en formato ancho. Usando como semilla el valor 13,
@@ -455,16 +485,158 @@ estadístico pertinente (enunciar hipótesis, revisar condiciones,
 seleccionar pruebas ómnibus y post-hoc según corresponda) para responder
 la pregunta planteada, utilizando pruebas no paramétricas de ser
 necesario.</p>
-</div>
+</blockquote>
+<hr />
 <div id="respuesta-pregunta-2" class="section level4">
 <h4><strong>Respuesta Pregunta 2</strong></h4>
+<p><strong>Determinación de Variables Independientes o
+Relacionadas:</strong></p>
+<ul>
+<li><strong>Variables Analizadas:</strong>
+<ul>
+<li>Rendimiento de la versión A en una instancia.</li>
+<li>Rendimiento de la versión B en la <strong>misma
+instancia</strong>.</li>
+</ul></li>
+<li><strong>Procedimiento de Muestreo:</strong>
+<ul>
+<li>Se seleccionan <strong>22 instancias</strong> y se comparan los
+rendimientos de A y B <strong>para cada una de esas
+instancias</strong>.</li>
+<li>Cada par de observaciones (rendimiento A y rendimiento B) está
+asociado a la misma instancia.</li>
+</ul></li>
+<li><strong>Análisis:</strong>
+<ul>
+<li>Las observaciones están <strong>emparejadas</strong> porque se
+comparan los rendimientos de ambas versiones en la misma instancia.</li>
+<li>Las diferencias entre rendimientos se calculan para cada instancia,
+lo que implica una relación directa entre las mediciones.</li>
+</ul></li>
+</ul>
+<p><strong>Conclusión:</strong></p>
+<ul>
+<li><strong>Variables Relacionadas (Pareadas):</strong>
+<ul>
+<li>Las muestras de rendimientos de las versiones A y B son
+<strong>relacionadas</strong>.</li>
+<li>Por lo tanto, se utiliza una prueba adecuada para comparar dos
+muestras relacionadas (en este caso, la <strong>Prueba de Rangos con
+Signo de Wilcoxon</strong>).</li>
+</ul></li>
+</ul>
+<p>Seleccionamos las columnas con el mejor rendimiento de las versiones
+A y B, para las instancias con 60 o más nodos y seteando la semilla en
+13 obtenemos una muestra aleatoria de 22 instancias.</p>
+<hr />
+<pre class="r"><code>set.seed(13)
+datos_filtrados2 &lt;- datos %&gt;%
+  filter(n.nodos &gt;= 60) %&gt;%
+  select(instancia, mejor.A, mejor.B) %&gt;%
+  sample_n(22)
+
+head(datos_filtrados2)</code></pre>
+<pre><code>##   instancia mejor.A mejor.B
+## 1        23   99.12   97.41
+## 2       121   97.20   86.85
+## 3        94   98.24   98.35
+## 4        26   98.22   96.94
+## 5       152   97.09   88.85
+## 6        84   97.59   94.40</code></pre>
+<hr />
+<p>Analizamos normalidad de los datos mediante gráfico Q-Q y prueba de
+Shapiro-Wilk.:</p>
+<pre class="r"><code># GRAFICAR Q-Q PLOT</code></pre>
+<hr />
+<p>Notamos puntos en el gráfico de A que se alejan de la recta, lo que
+sugiere que los datos no siguen una distribución normal. Para confirmar
+esto, realizamos la prueba de Shapiro-Wilk para ambas variables.</p>
+<ul>
+<li><p><span class="math inline">\(H_{0A}:\)</span> La variable mejor.A
+sigue una distribución normal.</p></li>
+<li><p><span class="math inline">\(H_{0B}:\)</span> La variable mejor.B
+sigue una distribución normal.</p></li>
+<li><p><span class="math inline">\(H_{AA}:\)</span> La variable mejor.A
+no sigue una distribución normal.</p></li>
+<li><p><span class="math inline">\(H_{AB}:\)</span> La variable mejor.B
+no sigue una distribución normal.</p></li>
+</ul>
+<hr />
+<pre class="r"><code>p_A &lt;- shapiro.test(datos_filtrados2$mejor.A)$p.value
+
+p_B &lt;- shapiro.test(datos_filtrados2$mejor.B)$p.value
+
+if (p_A &lt; 0.05) {
+  cat(&quot;La variable mejor.A no sigue una distribución normal p = &quot;, p_A)
+} else {
+  cat(&quot;La variable mejor.A sigue una distribución normal p = &quot;, p_A)
+}</code></pre>
+<pre><code>## La variable mejor.A no sigue una distribución normal p =  0.0003352514</code></pre>
+<pre class="r"><code>if (p_B &lt; 0.05) {
+  cat(&quot;La variable mejor.B no sigue una distribución normal p = &quot;, p_B)
+} else {
+  cat(&quot;La variable mejor.B sigue una distribución normal p = &quot;, p_B)
+}</code></pre>
+<pre><code>## La variable mejor.B sigue una distribución normal p =  0.1025614</code></pre>
+<hr />
+<p>Como los datos para A no siguen una distribución normal, plantearemos
+las hipótesis de una <strong>prueba de rangos con signo de
+Wilcoxon</strong> y verificaremos si se cumplen las condiciones para
+aplicarla.</p>
+</div>
+<div id="hipótesis" class="section level4">
+<h4><strong>Hipótesis</strong></h4>
+<ul>
+<li><p><span class="math inline">\(H_0:\)</span> No hay diferencias
+significativas entre los rendimientos de las versiones A y B.</p></li>
+<li><p><span class="math inline">\(H_A:\)</span> Existen diferencias
+significativas entre los rendimientos de las versiones A y B.</p></li>
+</ul>
+</div>
+<div id="condiciones" class="section level4">
+<h4><strong>Condiciones</strong></h4>
+<ol style="list-style-type: decimal">
+<li><strong>Los pares de observaciones son independientes</strong>: Se
+cumple, ya que los rendimientos de A y B corresponden a la misma
+instancia, pero no están relacionados los pares entre sí. Es decir, el
+rendiemiento de A y B en una instancia no afecta ni está relacionado con
+el rendimiento de A y B en otra instancia.</li>
+</ol>
+<p>Sin embargo, cabe mencionar que <strong>las muestras</strong> están
+relacionadas, ya que se comparan los rendimientos de A y B en la misma
+instancia.</p>
+<ol start="2" style="list-style-type: decimal">
+<li><strong>Los datos son ordinales</strong>: Se cumple, ya que los
+rendimientos son porcentajes de cercanía con la solución óptima.</li>
+</ol>
+</div>
+<div id="prueba-de-rangos-con-signo-de-wilcoxon" class="section level4">
+<h4><strong>Prueba de Rangos con Signo de Wilcoxon</strong></h4>
+<pre class="r"><code>prueba2 &lt;- wilcox.test(datos_filtrados2$mejor.A, datos_filtrados2$mejor.B, paired = TRUE, alternative = &quot;two.sided&quot;, conf.level = 0.95)
+prueba2</code></pre>
+<pre><code>## 
+##  Wilcoxon signed rank exact test
+## 
+## data:  datos_filtrados2$mejor.A and datos_filtrados2$mejor.B
+## V = 219, p-value = 0.001673
+## alternative hypothesis: true location shift is not equal to 0</code></pre>
+<hr />
+<blockquote>
+<p><strong>Conclusión:</strong> Como <strong>p = 0.001673 &lt;
+0.05</strong>, se rechaza la hipótesis nula y se concluye que existen
+diferencias significativas entre los rendimientos de las versiones A y
+B. Por lo tanto la sospecha de la memorista de que las versiones A y B
+presentan rendimientos distintos está respaldada por los datos.</p>
+</blockquote>
+<hr />
 <hr />
 </div>
-<div id="pregunta-3-la-memorista-sospecha-que-hay-diferencias-significativas-en-el-tiempo-de-ejecución-entre-las-versiones-del-algoritmo-cuando-las-instancias-de-prueba-tienen-50-o-más-nodos.-los-datos-respaldan-la-intuición-de-la-memorista" class="section level4">
-<h4><strong>Pregunta 3: La memorista sospecha que hay diferencias
+</div>
+<div id="pregunta-3-la-memorista-sospecha-que-hay-diferencias-significativas-en-el-tiempo-de-ejecución-entre-las-versiones-del-algoritmo-cuando-las-instancias-de-prueba-tienen-50-o-más-nodos.-los-datos-respaldan-la-intuición-de-la-memorista" class="section level3">
+<h3><strong>Pregunta 3: La memorista sospecha que hay diferencias
 significativas en el tiempo de ejecución entre las versiones del
 algoritmo cuando las instancias de prueba tienen 50 o más nodos. ¿Los
-datos respaldan la intuición de la memorista?</strong></h4>
+datos respaldan la intuición de la memorista?</strong></h3>
 <p>Para responder, filtren los datos para tener las instancias con 50 o
 más nodos y seleccionen las columnas con los tiempos de ejecución
 registrados (en formato ancho). Usando como semilla el valor 43,
@@ -474,16 +646,51 @@ análisis estadístico pertinente (enunciar hipótesis, revisar
 condiciones, seleccionar pruebas ómnibus y post-hoc según corresponda)
 para responder la pregunta planteada, utilizando pruebas no paramétricas
 de ser necesario.</p>
-</div>
 <div id="respuesta-pregunta-3" class="section level4">
 <h4><strong>Respuesta Pregunta 3</strong></h4>
+<p><strong>Determinación de Variables Independientes o
+Relacionadas:</strong></p>
+<ul>
+<li><strong>Variables Analizadas:</strong>
+<ul>
+<li>Tiempos de ejecución de la versión A.</li>
+<li>Tiempos de ejecución de la versión B.</li>
+<li>Tiempos de ejecución de la versión C.</li>
+</ul></li>
+<li><strong>Procedimiento de Muestreo:</strong>
+<ul>
+<li>Se extraen muestras aleatorias <strong>independientes</strong> para
+cada versión.</li>
+<li>Los tiempos de las versiones A, B y C <strong>no necesariamente
+corresponden a las mismas instancias</strong>.</li>
+</ul></li>
+<li><strong>Análisis:</strong>
+<ul>
+<li>No hay relación entre las observaciones de los distintos
+grupos.</li>
+<li>Cada grupo de tiempos proviene de instancias que pueden ser
+diferentes entre sí y entre versiones.</li>
+</ul></li>
+</ul>
+<p><strong>Conclusión:</strong></p>
+<ul>
+<li><strong>Variables Independientes:</strong>
+<ul>
+<li>Las muestras de tiempos de ejecución de las versiones A, B y C son
+<strong>independientes</strong> entre sí.</li>
+<li>Por lo tanto, se utiliza una prueba adecuada para comparar más de
+dos muestras independientes (en este caso, la <strong>Prueba de
+Kruskal-Wallis</strong>).</li>
+</ul></li>
+</ul>
 <hr />
 </div>
-<div id="pregunta-4-la-memorista-también-sospecha-que-al-comparar-las-mismas-instancias-con-iguales-características-las-mejores-soluciones-encontradas-por-las-diferentes-versiones-del-algoritmo-tienen-rendimientos-distintos.-estará-en-lo-cierto" class="section level4">
-<h4><strong>Pregunta 4: La memorista también sospecha que, al comparar
+</div>
+<div id="pregunta-4-la-memorista-también-sospecha-que-al-comparar-las-mismas-instancias-con-iguales-características-las-mejores-soluciones-encontradas-por-las-diferentes-versiones-del-algoritmo-tienen-rendimientos-distintos.-estará-en-lo-cierto" class="section level3">
+<h3><strong>Pregunta 4: La memorista también sospecha que, al comparar
 las mismas instancias con iguales características, las mejores
 soluciones encontradas por las diferentes versiones del algoritmo tienen
-rendimientos distintos. ¿Estará en lo cierto?</strong></h4>
+rendimientos distintos. ¿Estará en lo cierto?</strong></h3>
 <p>Para responder, filtren los datos para tener las instancias con 50 o
 más nodos y seleccionen las columnas con los mejores rendimientos
 registrados. Usando como semilla el valor 71, obtengan una muestra
@@ -493,14 +700,53 @@ Realicen un análisis estadístico pertinente (enunciar hipótesis, revisar
 condiciones, seleccionar pruebas ómnibus y post-hoc según corresponda)
 para responder la pregunta planteada, utilizando pruebas no paramétricas
 de ser necesario.</p>
-</div>
 <div id="respuesta-pregunta-4" class="section level4">
 <h4><strong>Respuesta Pregunta 4</strong></h4>
+<p><strong>Determinación de Variables Independientes o
+Relacionadas:</strong></p>
+<ul>
+<li><strong>Variables Analizadas:</strong>
+<ul>
+<li>Rendimiento de la versión A en una instancia.</li>
+<li>Rendimiento de la versión B en la <strong>misma
+instancia</strong>.</li>
+<li>Rendimiento de la versión C en la <strong>misma
+instancia</strong>.</li>
+</ul></li>
+<li><strong>Procedimiento de Muestreo:</strong>
+<ul>
+<li>Se seleccionan <strong>22 instancias</strong> y se registran los
+rendimientos de las tres versiones <strong>en cada una de esas
+instancias</strong>.</li>
+<li>Las observaciones de las tres versiones están vinculadas a la misma
+instancia.</li>
+</ul></li>
+<li><strong>Análisis:</strong>
+<ul>
+<li>Las mediciones están <strong>relacionadas</strong> porque se evalúan
+las tres versiones en las mismas instancias.</li>
+<li>Esto implica un diseño de medidas repetidas o bloques, donde cada
+“bloque” es una instancia y las “tratamientos” son las versiones del
+algoritmo.</li>
+</ul></li>
+</ul>
+<p><strong>Conclusión:</strong></p>
+<ul>
+<li><strong>Variables Relacionadas (Pareadas):</strong>
+<ul>
+<li>Las muestras de rendimientos de las versiones A, B y C son
+<strong>relacionadas</strong>.</li>
+<li>Por lo tanto, se utiliza una prueba adecuada para comparar más de
+dos muestras relacionadas (en este caso, la <strong>Prueba de
+Friedman</strong>).</li>
+</ul></li>
+</ul>
 <hr />
 <ul>
 <li><p><span class="math inline">\(H_0:\)</span></p></li>
 <li><p><span class="math inline">\(H_A:\)</span></p></li>
 </ul>
+</div>
 </div>
 </div>
 
