@@ -420,9 +420,31 @@ Relacionadas:</strong></p>
 <ul>
 <li>Se extraen muestras aleatorias <strong>independientes</strong> de
 los tiempos de ejecución de cada versión.</li>
-<li>Las muestras de tiempos de A y C <strong>no necesariamente
-corresponden a las mismas instancias</strong>.</li>
 </ul></li>
+</ul>
+<p>Para ello, de los datos originales, se filtran todas las
+observaciones que cuenten con 60 o más nodos, seleccionando
+específicamente las columnas referentes a los tiempos asociados a los
+algoritmos A y C.</p>
+<pre class="r"><code>datos_filtrados1 &lt;- datos %&gt;%
+filter(n.nodos &gt;= 60) %&gt;%
+select(tiempo.A, tiempo.C)
+
+head(datos_filtrados1)</code></pre>
+<pre><code>##   tiempo.A tiempo.C
+## 1   221955   393014
+## 2   170917   337776
+## 3   270976   441060
+## 4   251386   421965
+## 5   233140   404008
+## 6   249766   420529</code></pre>
+<p>Seguido de ello, se obtienen muestras aleatorias independientes de 24
+tiempos registrados para la versión A del algoritmo, y 20 tiempos para
+la versión C del mismo, utilizando la semilla 73.</p>
+<pre class="r"><code>set.seed(73)
+muestras_A &lt;- sample(datos_filtrados1$tiempo.A, 24)
+muestras_C &lt;- sample(datos_filtrados1$tiempo.C, 20)</code></pre>
+<ul>
 <li><strong>Análisis:</strong>
 <ul>
 <li>No hay emparejamiento entre los tiempos de A y C; es decir, el
@@ -436,40 +458,81 @@ las observaciones en el otro grupo.</li>
 <ul>
 <li><strong>Variables Independientes:</strong>
 <ul>
-<li>Las muestras de tiempos de ejecución de las versiones A y C son
-<strong>independientes</strong>.</li>
-<li>Por lo tanto, se utiliza una prueba adecuada para comparar dos
-muestras independientes (en este caso, la <strong>Prueba de Sumas de
-Rangos de Wilcoxon</strong>).</li>
+<li><p>Las muestras de tiempos de ejecución de las versiones A y C son
+<strong>independientes</strong>.</p></li>
+<li><p>Por lo tanto, se utiliza una prueba adecuada para comparar dos
+muestras independientes (en este caso, la <strong>prueba de suma de
+rangos de Wilcoxon</strong>)</p>
+<p><br />
+Lo anterior se debe a que las muestras <strong>no siguen una
+distribución normal</strong>, tal y como se puede apreciar del resultado
+de aplicar la prueba de normalidad Shapiro-Wilk sobre ambas, donde el
+<code>p-value</code> para la muestra asociada a los tiempos del
+algoritmo A es menor a <span class="math inline">\(0.05\)</span>;
+provocando que no sea posible aplicar una prueba paramétrica, como lo es
+la prueba t de Student, y en su lugar escogiendo una no
+paramétrica.</p></li>
 </ul></li>
 </ul>
-<blockquote>
-<p>Posteriormente en el procedimiento recordar enunciar hipotesis y
-verificar condiciones.</p>
-</blockquote>
-<p>Para ello, primero se seleccionan todas aquellas observaciones con 60
-o más nodos y seleccionando las columnas <code>Tiempo_A</code> y
-<code>Tiempo_C</code>.</p>
-<pre class="r"><code>datos_filtrados1 &lt;- datos %&gt;%
-  filter(n.nodos &gt;= 60) %&gt;%
-  select(tiempo.A, tiempo.C)
+<pre class="r"><code>normalidadg1 &lt;- shapiro.test(muestras_A)
+normalidadg2 &lt;- shapiro.test(muestras_C)
 
-head(datos_filtrados1)</code></pre>
-<pre><code>##   tiempo.A tiempo.C
-## 1   221955   393014
-## 2   170917   337776
-## 3   270976   441060
-## 4   251386   421965
-## 5   233140   404008
-## 6   249766   420529</code></pre>
-<p>Seguido de ello, se obtienen muestras aleatorias independientes de 20
-y 24 tiempos registrados, para la versión A y C del algoritmo
-respectivamente, utilizando la semilla 73.</p>
-<pre class="r"><code>set.seed(73)
-muestras_A &lt;- sample(datos_filtrados1$tiempo.A, 24)
-muestras_C &lt;- sample(datos_filtrados1$tiempo.C, 20)</code></pre>
-<hr />
+print(normalidadg1)</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  muestras_A
+## W = 0.89435, p-value = 0.01636</code></pre>
+<pre class="r"><code>print(normalidadg2)</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  muestras_C
+## W = 0.96348, p-value = 0.6155</code></pre>
 </div>
+</div>
+<div id="hipótesis-a-docimar" class="section level3">
+<h3><strong>Hipótesis a docimar</strong></h3>
+<p><span class="math inline">\(H_{0}\)</span>: No existen diferencias
+significativas entre los tiempos registrados para ambas versiones.</p>
+<p><span class="math inline">\(H_{A}\)</span>: Existen diferencias
+significativas entre los tiempos registrados para ambas versiones.</p>
+</div>
+<div id="condiciones-a-verificar-para-llevar-a-cabo-la-prueba" class="section level3">
+<h3><strong>Condiciones a verificar para llevar a cabo la
+prueba</strong></h3>
+<ol style="list-style-type: decimal">
+<li><p>Las observaciones de ambas muestras son independientes, lo cual
+se cumple debido a que las distintas instancias del problema del viajero
+escogidas para cada versión del algoritmo no se relacionan entre
+sí.</p></li>
+<li><p>La escala de medición empleada debe ser a lo menos ordinal, lo
+cual se cumple al trabajar con tiempos de ejecución, medidos en
+segundos, los cuales intrínsecamente se pueden ordenar según sus
+valores.</p></li>
+</ol>
+</div>
+<div id="prueba-de-sumas-de-rango-de-wilcoxon" class="section level3">
+<h3><strong>Prueba de sumas de rango de Wilcoxon</strong></h3>
+<pre class="r"><code># Considerando un nivel de significación del 95%
+alfa &lt;- 0.05
+
+prueba &lt;- wilcox.test(muestras_A, muestras_C, alternative = &quot;two.sided&quot;, conf.level = 1 - alfa)
+print(prueba)</code></pre>
+<pre><code>## 
+##  Wilcoxon rank sum exact test
+## 
+## data:  muestras_A and muestras_C
+## W = 260, p-value = 0.649
+## alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+<div id="conclusión" class="section level3">
+<h3><strong>Conclusión</strong></h3>
+<p>Dado que el valor de <code>p-value</code> obtenido es menor a <span class="math inline">\(0.05\)</span>, se rechaza la hipótesis nula en
+favor de la alternativa, concluyendo así que existen diferencias
+significativas entre los tiempos de ejecución de las versiones A y C del
+algoritmo, respaldando la intuición de la memorista.</p>
+<hr />
 </div>
 <div id="pregunta-2-la-memorista-también-sospecha-que-al-comparar-las-mismas-instancias-de-iguales-características-las-mejores-soluciones-encontradas-por-las-versiones-a-y-b-tienen-rendimientos-distintos.-estará-en-lo-cierto" class="section level3">
 <h3><strong>Pregunta 2: La memorista también sospecha que, al comparar
@@ -812,6 +875,24 @@ prueba3</code></pre>
 }</code></pre>
 <pre><code>## Como p = 0.0144954 &lt; 0.05 Se rechaza la hipótesis nula y se concluye que existen diferencias significativas entre los tiempos de ejecución de las versiones A, B y C.</code></pre>
 <hr />
+<p>Para determinar dichas diferencias se realizará un análisis
+Post-Hoc.</p>
+<table style="width:14%;">
+<colgroup>
+<col width="13%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>#### <strong>Post-Hoc</strong></td>
+</tr>
+<tr class="even">
+<td>```</td>
+</tr>
+<tr class="odd">
+<td>```</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="pregunta-4-la-memorista-también-sospecha-que-al-comparar-las-mismas-instancias-con-iguales-características-las-mejores-soluciones-encontradas-por-las-diferentes-versiones-del-algoritmo-tienen-rendimientos-distintos.-estará-en-lo-cierto" class="section level3">

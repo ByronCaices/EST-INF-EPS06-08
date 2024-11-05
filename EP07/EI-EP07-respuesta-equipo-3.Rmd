@@ -72,41 +72,25 @@ head(datos)
 
 #### **Respuesta Pregunta 1**
 
-
 **Determinación de Variables Independientes o Relacionadas:**
 
-- **Variables Analizadas:**
-  - Tiempo de ejecución de la versión A.
-  - Tiempo de ejecución de la versión C.
+-   **Variables Analizadas:**
+    -   Tiempo de ejecución de la versión A.
+    -   Tiempo de ejecución de la versión C.
+-   **Procedimiento de Muestreo:**
+    -   Se extraen muestras aleatorias **independientes** de los tiempos de ejecución de cada versión.
 
-- **Procedimiento de Muestreo:**
-  - Se extraen muestras aleatorias **independientes** de los tiempos de ejecución de cada versión.
-  - Las muestras de tiempos de A y C **no necesariamente corresponden a las mismas instancias**.
-
-- **Análisis:**
-  - No hay emparejamiento entre los tiempos de A y C; es decir, el tiempo de la versión A para una instancia no está vinculado con el tiempo de la versión C para esa misma instancia.
-  - Las observaciones en un grupo no afectan ni están relacionadas con las observaciones en el otro grupo.
-
-**Conclusión:**
-
-- **Variables Independientes:**
-  - Las muestras de tiempos de ejecución de las versiones A y C son **independientes**.
-  - Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras independientes (en este caso, la **Prueba de Sumas de Rangos de Wilcoxon**).
-
-
-> Posteriormente en el procedimiento recordar enunciar hipotesis y verificar condiciones.
-
-Para ello, primero se seleccionan todas aquellas observaciones con 60 o más nodos y seleccionando las columnas `Tiempo_A` y `Tiempo_C`.
+Para ello, de los datos originales, se filtran todas las observaciones que cuenten con 60 o más nodos, seleccionando específicamente las columnas referentes a los tiempos asociados a los algoritmos A y C.
 
 ```{R}
 datos_filtrados1 <- datos %>%
-  filter(n.nodos >= 60) %>%
-  select(tiempo.A, tiempo.C)
+filter(n.nodos >= 60) %>%
+select(tiempo.A, tiempo.C)
 
 head(datos_filtrados1)
 ```
 
-Seguido de ello, se obtienen muestras aleatorias independientes de 20 y 24 tiempos registrados, para la versión A y C del algoritmo respectivamente, utilizando la semilla 73.
+Seguido de ello, se obtienen muestras aleatorias independientes de 24 tiempos registrados para la versión A del algoritmo, y 20 tiempos para la versión C del mismo, utilizando la semilla 73.
 
 ```{r}
 set.seed(73)
@@ -114,6 +98,53 @@ muestras_A <- sample(datos_filtrados1$tiempo.A, 24)
 muestras_C <- sample(datos_filtrados1$tiempo.C, 20)
 ```
 
+-   **Análisis:**
+    -   No hay emparejamiento entre los tiempos de A y C; es decir, el tiempo de la versión A para una instancia no está vinculado con el tiempo de la versión C para esa misma instancia.
+    -   Las observaciones en un grupo no afectan ni están relacionadas con las observaciones en el otro grupo.
+
+**Conclusión:**
+
+-   **Variables Independientes:**
+    -   Las muestras de tiempos de ejecución de las versiones A y C son **independientes**.
+
+    -   Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras independientes (en este caso, la **prueba de suma de rangos de Wilcoxon**)
+
+        \
+        Lo anterior se debe a que las muestras **no siguen una distribución normal**, tal y como se puede apreciar del resultado de aplicar la prueba de normalidad Shapiro-Wilk sobre ambas, donde el `p-value` para la muestra asociada a los tiempos del algoritmo A es menor a $0.05$; provocando que no sea posible aplicar una prueba paramétrica, como lo es la prueba t de Student, y en su lugar escogiendo una no paramétrica.
+
+```{r}
+normalidadg1 <- shapiro.test(muestras_A)
+normalidadg2 <- shapiro.test(muestras_C)
+
+print(normalidadg1)
+print(normalidadg2)
+```
+
+### **Hipótesis a docimar**
+
+$H_{0}$: No existen diferencias significativas entre los tiempos registrados para ambas versiones.
+
+$H_{A}$: Existen diferencias significativas entre los tiempos registrados para ambas versiones.
+
+### **Condiciones a verificar para llevar a cabo la prueba**
+
+1.  Las observaciones de ambas muestras son independientes, lo cual se cumple debido a que las distintas instancias del problema del viajero escogidas para cada versión del algoritmo no se relacionan entre sí.
+
+2.  La escala de medición empleada debe ser a lo menos ordinal, lo cual se cumple al trabajar con tiempos de ejecución, medidos en segundos, los cuales intrínsecamente se pueden ordenar según sus valores.
+
+### **Prueba de sumas de rango de Wilcoxon**
+
+```{r}
+# Considerando un nivel de significación del 95%
+alfa <- 0.05
+
+prueba <- wilcox.test(muestras_A, muestras_C, alternative = "two.sided", conf.level = 1 - alfa)
+print(prueba)
+```
+
+### **Conclusión**
+
+Dado que el valor de `p-value` obtenido es menor a $0.05$, se rechaza la hipótesis nula en favor de la alternativa, concluyendo así que existen diferencias significativas entre los tiempos de ejecución de las versiones A y C del algoritmo, respaldando la intuición de la memorista.
 
 ----------
 
