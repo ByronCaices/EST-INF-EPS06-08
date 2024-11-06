@@ -174,7 +174,7 @@ Dado que el valor de `p-value` obtenido es menor a $0.05$, se rechaza la hipóte
 
 - **Variables Relacionadas (Pareadas):**
   - Las muestras de rendimientos de las versiones A y B son **relacionadas**.
-  - Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras relacionadas (en este caso, la **Prueba de Rangos con Signo de Wilcoxon**).
+  - Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras relacionadas (en este caso, la **Prueba de Rangos con Signo de Wilcoxon** ya que más adelante se encontró que al menos una muestra no sigue una distribución normal).
 
 Seleccionamos las columnas con el mejor rendimiento de las versiones A y B, para las instancias con 60 o más nodos y seteando la semilla en 13 obtenemos una muestra aleatoria de 22 instancias.
 
@@ -195,7 +195,27 @@ head(datos_filtrados2)
 Analizamos normalidad de los datos mediante gráfico Q-Q y prueba de Shapiro-Wilk.:
 
 ```{r}
-# GRAFICAR Q-Q PLOT
+# Crear los gráficos Q-Q para mejor.A y mejor.B
+qq_plot_A <- ggqqplot(datos_filtrados2$mejor.A, 
+                      title = "Gráfico Q-Q para mejor.A",
+                      xlab = "Cuantiles Teóricos",
+                      ylab = "Cuantiles Observados",
+                      color = "blue") +
+  theme_minimal()
+
+qq_plot_B <- ggqqplot(datos_filtrados2$mejor.B, 
+                      title = "Gráfico Q-Q para mejor.B",
+                      xlab = "Cuantiles Teóricos",
+                      ylab = "Cuantiles Observados",
+                      color = "green") +
+  theme_minimal()
+
+# Opcional: Organizar ambos gráficos en una sola figura
+ggarrange(qq_plot_A, qq_plot_B, 
+          ncol = 2, nrow = 1, 
+          common.legend = FALSE,
+          labels = c("A", "B"))
+
 ```
 
 ------
@@ -400,11 +420,35 @@ if (prueba3$p.value < 0.05) {
 Para determinar dichas diferencias se realizará un análisis Post-Hoc.
 
 ---------
+
 #### **Post-Hoc**
 
+Realizamos procedimiento de Benjamini-Hochberg
+
+```{r}
+if(prueba3$p.value < 0.05){
+  posthoc <- pairwise.wilcox.test(datos_muestra3$Tiempo, 
+                                  datos_muestra3$Algoritmo, 
+                                  p.adjust.method = "BH", 
+                                  paired = FALSE,
+                                  exact = FALSE)
+  print(posthoc)
+}
 ```
 
-```
+--------
+
+Los resultados de las comparaciones múltiples fueron los siguientes:
+
+- Versión A vs Versión B: p = 0.034 (significativo)
+- Versión A vs Versión C: p = 0.097 (no significativo)
+- Versión B vs Versión C: p = 0.097 (no significativo)
+
+**Conclusiones de los Resultados:**
+
+- Versión A vs Versión B: Existe una diferencia significativa en los tiempos de ejecución entre las versiones A y B. Esto respalda la sospecha de la memorista de que estas dos versiones presentan rendimientos distintos.
+
+- Versión A vs Versión C y Versión B vs Versión C: No se encontraron diferencias significativas en los tiempos de ejecución entre las versiones A y C ni entre B y C.
 
 --------
 
