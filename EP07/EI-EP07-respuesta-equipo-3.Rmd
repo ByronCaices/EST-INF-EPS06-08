@@ -63,12 +63,11 @@ datos <- read.csv("EP07 Datos.csv")
 head(datos)
 ```
 
-----------
+------------------------------------------------------------------------
 
-### **Pregunta 1: Observando los datos, la memorista sospecha que hay diferencias significativas en el tiempo de ejecución entre las versiones A y C del algoritmo cuando las instancias tienen 60 o más nodos. ¿Los datos respaldan la intuición de la memorista?** 
+### **Pregunta 1: Observando los datos, la memorista sospecha que hay diferencias significativas en el tiempo de ejecución entre las versiones A y C del algoritmo cuando las instancias tienen 60 o más nodos. ¿Los datos respaldan la intuición de la memorista?**
 
 > Para responder, filtren los datos para tener las instancias con 60 o más nodos y seleccionen las columnas de los tiempos de ejecución de las versiones A y C en formato ancho. Usando como semilla el valor 73, obtenga muestras aleatorias independientes de 24 tiempos registrados por la versión A y 20 tiempos registrados por la versión C del algoritmo. Realicen un análisis estadístico pertinente (enunciar hipótesis, revisar condiciones, seleccionar pruebas ómnibus y post-hoc según corresponda) para responder la pregunta planteada, utilizando pruebas no paramétricas de ser necesario.
-
 
 #### **Respuesta Pregunta 1**
 
@@ -107,17 +106,37 @@ muestras_C <- sample(datos_filtrados1$tiempo.C, 20)
 -   **Variables Independientes:**
     -   Las muestras de tiempos de ejecución de las versiones A y C son **independientes**.
 
-    -   Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras independientes (en este caso, la **prueba de suma de rangos de Wilcoxon**)
-
+    -   Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras independientes (en este caso, la **prueba de suma de rangos de Wilcoxon**)\
         \
-        Lo anterior se debe a que las muestras **no siguen una distribución normal**, tal y como se puede apreciar del resultado de aplicar la prueba de normalidad Shapiro-Wilk sobre ambas, donde el `p-value` para la muestra asociada a los tiempos del algoritmo A es menor a $0.05$; provocando que no sea posible aplicar una prueba paramétrica, como lo es la prueba t de Student, y en su lugar escogiendo una no paramétrica.
-
+        Lo anterior se debe a que las muestras **no siguen una distribución normal**, lo cuál se puede apreciar por medio del gráfico QQ y de la prueba de normalidad de Shapiro-Wilk; donde si bien los puntos no se alejan significativamente de la recta en el gráfico QQ, el `p-value` obtenido de la prueba Shapiro-Wilk para el algoritmo A es menor a $0.05$; implicando así que no se pueda aplicar una prueba paramétrica, como lo es la prueba t de Student, y en su lugar optando por una alternativa no paramétrica.
+        
 ```{r}
+g_A <- ggqqplot(muestras_A,
+                title = "Gráfico Q-Q para tiempo.A",
+                color = "red",
+                xlab = "Cuantiles Teóricos",
+                ylab = "Cuantiles Observados") + 
+  theme_minimal()
+
+g_C <- ggqqplot(muestras_C,
+                title = "Gráfico Q-Q para tiempo.C",
+                color = "blue",
+                xlab = "Cuantiles Teóricos",
+                ylab = "Cuantiles Observados") + 
+  theme_minimal()
+
+ggarrange(g_A, g_C,
+          ncol = 2,
+          nrow = 1,
+          common.legend = FALSE,
+          labels = c("A", "C"))
+
 normalidadg1 <- shapiro.test(muestras_A)
 normalidadg2 <- shapiro.test(muestras_C)
 
 print(normalidadg1)
 print(normalidadg2)
+
 ```
 
 ### **Hipótesis a docimar**
@@ -146,39 +165,37 @@ print(prueba)
 
 Dado que el valor de `p-value` obtenido es menor a $0.05$, se rechaza la hipótesis nula en favor de la alternativa, concluyendo así que existen diferencias significativas entre los tiempos de ejecución de las versiones A y C del algoritmo, respaldando la intuición de la memorista.
 
-----------
+------------------------------------------------------------------------
 
 ### **Pregunta 2: La memorista también sospecha que, al comparar las mismas instancias de iguales características, las mejores soluciones encontradas por las versiones A y B tienen rendimientos distintos. ¿Estará en lo cierto?**
 
 > Para responder, filtren los datos para tener las instancias con 60 o más nodos y seleccionen las columnas con el mejor rendimiento de las versiones A y B en formato ancho. Usando como semilla el valor 13, obtengan una muestra aleatoria de 22 instancias. Realicen un análisis estadístico pertinente (enunciar hipótesis, revisar condiciones, seleccionar pruebas ómnibus y post-hoc según corresponda) para responder la pregunta planteada, utilizando pruebas no paramétricas de ser necesario.
 
--------
+------------------------------------------------------------------------
 
 #### **Respuesta Pregunta 2**
 
 **Determinación de Variables Independientes o Relacionadas:**
 
-- **Variables Analizadas:**
-  - Rendimiento de la versión A en una instancia.
-  - Rendimiento de la versión B en la **misma instancia**.
-
-- **Procedimiento de Muestreo:**
-  - Se seleccionan **22 instancias** y se comparan los rendimientos de A y B **para cada una de esas instancias**.
-  - Cada par de observaciones (rendimiento A y rendimiento B) está asociado a la misma instancia.
-
-- **Análisis:**
-  - Las observaciones están **emparejadas** porque se comparan los rendimientos de ambas versiones en la misma instancia.
-  - Las diferencias entre rendimientos se calculan para cada instancia, lo que implica una relación directa entre las mediciones.
+-   **Variables Analizadas:**
+    -   Rendimiento de la versión A en una instancia.
+    -   Rendimiento de la versión B en la **misma instancia**.
+-   **Procedimiento de Muestreo:**
+    -   Se seleccionan **22 instancias** y se comparan los rendimientos de A y B **para cada una de esas instancias**.
+    -   Cada par de observaciones (rendimiento A y rendimiento B) está asociado a la misma instancia.
+-   **Análisis:**
+    -   Las observaciones están **emparejadas** porque se comparan los rendimientos de ambas versiones en la misma instancia.
+    -   Las diferencias entre rendimientos se calculan para cada instancia, lo que implica una relación directa entre las mediciones.
 
 **Conclusión:**
 
-- **Variables Relacionadas (Pareadas):**
-  - Las muestras de rendimientos de las versiones A y B son **relacionadas**.
-  - Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras relacionadas (en este caso, la **Prueba de Rangos con Signo de Wilcoxon** ya que más adelante se encontró que al menos una muestra no sigue una distribución normal).
+-   **Variables Relacionadas (Pareadas):**
+    -   Las muestras de rendimientos de las versiones A y B son **relacionadas**.
+    -   Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras relacionadas (en este caso, la **Prueba de Rangos con Signo de Wilcoxon** ya que más adelante se encontró que al menos una muestra no sigue una distribución normal).
 
 Seleccionamos las columnas con el mejor rendimiento de las versiones A y B, para las instancias con 60 o más nodos y seteando la semilla en 13 obtenemos una muestra aleatoria de 22 instancias.
 
---------
+------------------------------------------------------------------------
 
 ```{r}
 set.seed(13)
@@ -190,7 +207,7 @@ datos_filtrados2 <- datos %>%
 head(datos_filtrados2)
 ```
 
--------
+------------------------------------------------------------------------
 
 Analizamos normalidad de los datos mediante gráfico Q-Q y prueba de Shapiro-Wilk.:
 
@@ -218,17 +235,19 @@ ggarrange(qq_plot_A, qq_plot_B,
 
 ```
 
-------
+------------------------------------------------------------------------
 
 Notamos puntos en el gráfico de A que se alejan de la recta, lo que sugiere que los datos no siguen una distribución normal. Para confirmar esto, realizamos la prueba de Shapiro-Wilk para ambas variables.
 
 -   $H_{0A}:$ La variable mejor.A sigue una distribución normal.
+
 -   $H_{0B}:$ La variable mejor.B sigue una distribución normal.
 
 -   $H_{AA}:$ La variable mejor.A no sigue una distribución normal.
+
 -   $H_{AB}:$ La variable mejor.B no sigue una distribución normal.
 
----------
+------------------------------------------------------------------------
 
 ```{r}
 
@@ -249,23 +268,23 @@ if (p_B < 0.05) {
 }
 ```
 
----------
+------------------------------------------------------------------------
 
 Como los datos para A no siguen una distribución normal, plantearemos las hipótesis de una **prueba de rangos con signo de Wilcoxon** y verificaremos si se cumplen las condiciones para aplicarla.
 
 #### **Hipótesis**
 
-- \(H_0:\) No hay diferencias significativas entre los rendimientos de las versiones A y B.
+-   $H_0:$ No hay diferencias significativas entre los rendimientos de las versiones A y B.
 
-- \(H_A:\) Existen diferencias significativas entre los rendimientos de las versiones A y B.
+-   $H_A:$ Existen diferencias significativas entre los rendimientos de las versiones A y B.
 
 #### **Condiciones**
 
-1. **Los pares de observaciones son independientes**: Se cumple, ya que los rendimientos de A y B corresponden a la misma instancia, pero no están relacionados los pares entre sí. Es decir, el rendiemiento de A y B en una instancia no afecta ni está relacionado con el rendimiento de A y B en otra instancia.
+1.  **Los pares de observaciones son independientes**: Se cumple, ya que los rendimientos de A y B corresponden a la misma instancia, pero no están relacionados los pares entre sí. Es decir, el rendiemiento de A y B en una instancia no afecta ni está relacionado con el rendimiento de A y B en otra instancia.
 
 Sin embargo, cabe mencionar que **las muestras** están relacionadas, ya que se comparan los rendimientos de A y B en la misma instancia.
 
-2. **Los datos son ordinales**: Se cumple, ya que los rendimientos son porcentajes de cercanía con la solución óptima.
+2.  **Los datos son ordinales**: Se cumple, ya que los rendimientos son porcentajes de cercanía con la solución óptima.
 
 #### **Prueba de Rangos con Signo de Wilcoxon**
 
@@ -274,13 +293,13 @@ prueba2 <- wilcox.test(datos_filtrados2$mejor.A, datos_filtrados2$mejor.B, paire
 prueba2
 ```
 
----------
+------------------------------------------------------------------------
 
-> **Conclusión:** Como **p = 0.001673 < 0.05**, se rechaza la hipótesis nula y se concluye que existen diferencias significativas entre los rendimientos de las versiones A y B. Por lo tanto la sospecha de la memorista de que las versiones A y B presentan rendimientos distintos está respaldada por los datos.
+> **Conclusión:** Como **p = 0.001673 \< 0.05**, se rechaza la hipótesis nula y se concluye que existen diferencias significativas entre los rendimientos de las versiones A y B. Por lo tanto la sospecha de la memorista de que las versiones A y B presentan rendimientos distintos está respaldada por los datos.
 
-----------
+------------------------------------------------------------------------
 
-----------
+------------------------------------------------------------------------
 
 ### **Pregunta 3: La memorista sospecha que hay diferencias significativas en el tiempo de ejecución entre las versiones del algoritmo cuando las instancias de prueba tienen 50 o más nodos. ¿Los datos respaldan la intuición de la memorista?**
 
@@ -290,26 +309,24 @@ prueba2
 
 **Determinación de Variables Independientes o Relacionadas:**
 
-- **Variables Analizadas:**
-  - Tiempos de ejecución de la versión A.
-  - Tiempos de ejecución de la versión B.
-  - Tiempos de ejecución de la versión C.
-
-- **Procedimiento de Muestreo:**
-  - Se extraen muestras aleatorias **independientes** para cada versión.
-  - Los tiempos de las versiones A, B y C **no necesariamente corresponden a las mismas instancias**.
-
-- **Análisis:**
-  - No hay relación entre las observaciones de los distintos grupos.
-  - Cada grupo de tiempos proviene de instancias que pueden ser diferentes entre sí y entre versiones.
+-   **Variables Analizadas:**
+    -   Tiempos de ejecución de la versión A.
+    -   Tiempos de ejecución de la versión B.
+    -   Tiempos de ejecución de la versión C.
+-   **Procedimiento de Muestreo:**
+    -   Se extraen muestras aleatorias **independientes** para cada versión.
+    -   Los tiempos de las versiones A, B y C **no necesariamente corresponden a las mismas instancias**.
+-   **Análisis:**
+    -   No hay relación entre las observaciones de los distintos grupos.
+    -   Cada grupo de tiempos proviene de instancias que pueden ser diferentes entre sí y entre versiones.
 
 **Conclusión:**
 
-- **Variables Independientes:**
-  - Las muestras de tiempos de ejecución de las versiones A, B y C son **independientes** entre sí.
-  - Por lo tanto, se utiliza una prueba adecuada para comparar más de dos muestras independientes (en este caso, la **Prueba de Kruskal-Wallis**).
-  
-----------
+-   **Variables Independientes:**
+    -   Las muestras de tiempos de ejecución de las versiones A, B y C son **independientes** entre sí.
+    -   Por lo tanto, se utiliza una prueba adecuada para comparar más de dos muestras independientes (en este caso, la **Prueba de Kruskal-Wallis**).
+
+------------------------------------------------------------------------
 
 ```{r}
 set.seed(43)
@@ -328,7 +345,7 @@ datos_muestra3 <- data.frame(Tiempo, Algoritmo)
 head(datos_muestra3)
 ```
 
-------------
+------------------------------------------------------------------------
 
 Analizamos normalidad de los datos mediante gráfico Q-Q y prueba de Shapiro-Wilk.:
 
@@ -343,19 +360,23 @@ g <- g + facet_wrap(~ Algoritmo)
 print(g)
 ```
 
-------
+------------------------------------------------------------------------
 
 Notamos puntos en el gráfico de A y B que se alejan de la recta, lo que sugiere que los datos no siguen una distribución normal. Para confirmar esto, realizamos la prueba de Shapiro-Wilk para cada una de las variables.
 
 -   $H_{0A}:$ La variable tiempo.A sigue una distribución normal.
+
 -   $H_{0B}:$ La variable tiempo.B sigue una distribución normal.
+
 -   $H_{0C}:$ La variable tiempo.C sigue una distribución normal.
 
 -   $H_{AA}:$ La variable tiempo.A no sigue una distribución normal.
+
 -   $H_{AB}:$ La variable tiempo.B no sigue una distribución normal.
+
 -   $H_{AC}:$ La variable tiempo.C no sigue una distribución normal.
 
-------------
+------------------------------------------------------------------------
 
 ```{r}
 p_A <- shapiro.test(datos_muestra3$Tiempo[datos_muestra3$Algoritmo == "A"])$p.value
@@ -381,26 +402,26 @@ if (p_C < 0.05) {
 }
 ```
 
-----------
+------------------------------------------------------------------------
 
 Como los datos para A no siguen una distribución normal, las muestras son independientes y los tamaños de las muestras difieren: plantearemos las hipótesis de una **Prueba de Kruskall-Wallis** y verificaremos si se cumplen las condiciones para aplicarla.
 
 #### **Hipótesis**
 
-- \(H_0:\) No hay diferencias significativas entre los tiempos de ejecución de las versiones A, B y C.
-- \(H_A:\) Existen diferencias significativas para al menos uno de los tiempos de ejecución de las versiones A, B y C.
+-   $H_0:$ No hay diferencias significativas entre los tiempos de ejecución de las versiones A, B y C.
+-   $H_A:$ Existen diferencias significativas para al menos uno de los tiempos de ejecución de las versiones A, B y C.
 
-----------
+------------------------------------------------------------------------
 
 #### **Condiciones**
 
-1. **La variable independiente debe tener al menos 2 niveles:** Se cumple, ya que se comparan los tiempos de ejecución de tres versiones del algoritmo.
+1.  **La variable independiente debe tener al menos 2 niveles:** Se cumple, ya que se comparan los tiempos de ejecución de tres versiones del algoritmo.
 
-2. **La escala de la variable dependiente debe ser, a lo menos, ordinal:** Se cumple. La variable dependiente es "Tiempo", que es una variable continua. Las pruebas no paramétricas como Kruskal-Wallis requieren al menos una escala ordinal, y una escala continua cumple con este requisito
+2.  **La escala de la variable dependiente debe ser, a lo menos, ordinal:** Se cumple. La variable dependiente es "Tiempo", que es una variable continua. Las pruebas no paramétricas como Kruskal-Wallis requieren al menos una escala ordinal, y una escala continua cumple con este requisito
 
-3. **Las observaciones son independientes entre sí:** Se cumple, ya que los tiempos de ejecución de las versiones A, B y C al seleccionar las muestras se hizo de forma independiente
+3.  **Las observaciones son independientes entre sí:** Se cumple, ya que los tiempos de ejecución de las versiones A, B y C al seleccionar las muestras se hizo de forma independiente
 
------------
+------------------------------------------------------------------------
 
 #### **Prueba de Kruskall-Wallis**
 
@@ -415,11 +436,11 @@ if (prueba3$p.value < 0.05) {
 }
 ```
 
----------
+------------------------------------------------------------------------
 
 Para determinar dichas diferencias se realizará un análisis Post-Hoc.
 
----------
+------------------------------------------------------------------------
 
 #### **Post-Hoc**
 
@@ -436,21 +457,21 @@ if(prueba3$p.value < 0.05){
 }
 ```
 
---------
+------------------------------------------------------------------------
 
 Los resultados de las comparaciones múltiples fueron los siguientes:
 
-- Versión A vs Versión B: p = 0.034 (significativo)
-- Versión A vs Versión C: p = 0.097 (no significativo)
-- Versión B vs Versión C: p = 0.097 (no significativo)
+-   Versión A vs Versión B: p = 0.034 (significativo)
+-   Versión A vs Versión C: p = 0.097 (no significativo)
+-   Versión B vs Versión C: p = 0.097 (no significativo)
 
 **Conclusiones de los Resultados:**
 
-- Versión A vs Versión B: Existe una diferencia significativa en los tiempos de ejecución entre las versiones A y B. Esto respalda la sospecha de la memorista de que estas dos versiones presentan rendimientos distintos.
+-   Versión A vs Versión B: Existe una diferencia significativa en los tiempos de ejecución entre las versiones A y B. Esto respalda la sospecha de la memorista de que estas dos versiones presentan rendimientos distintos.
 
-- Versión A vs Versión C y Versión B vs Versión C: No se encontraron diferencias significativas en los tiempos de ejecución entre las versiones A y C ni entre B y C.
+-   Versión A vs Versión C y Versión B vs Versión C: No se encontraron diferencias significativas en los tiempos de ejecución entre las versiones A y C ni entre B y C.
 
---------
+------------------------------------------------------------------------
 
 ### **Pregunta 4: La memorista también sospecha que, al comparar las mismas instancias con iguales características, las mejores soluciones encontradas por las diferentes versiones del algoritmo tienen rendimientos distintos. ¿Estará en lo cierto?**
 
@@ -460,28 +481,25 @@ Para responder, filtren los datos para tener las instancias con 50 o más nodos 
 
 **Determinación de Variables Independientes o Relacionadas:**
 
-- **Variables Analizadas:**
-  - Rendimiento de la versión A en una instancia.
-  - Rendimiento de la versión B en la **misma instancia**.
-  - Rendimiento de la versión C en la **misma instancia**.
-
-- **Procedimiento de Muestreo:**
-  - Se seleccionan **22 instancias** y se registran los rendimientos de las tres versiones **en cada una de esas instancias**.
-  - Las observaciones de las tres versiones están vinculadas a la misma instancia.
-
-- **Análisis:**
-  - Las mediciones están **relacionadas** porque se evalúan las tres versiones en las mismas instancias.
-  - Esto implica un diseño de medidas repetidas o bloques, donde cada "bloque" es una instancia y las "tratamientos" son las versiones del algoritmo.
+-   **Variables Analizadas:**
+    -   Rendimiento de la versión A en una instancia.
+    -   Rendimiento de la versión B en la **misma instancia**.
+    -   Rendimiento de la versión C en la **misma instancia**.
+-   **Procedimiento de Muestreo:**
+    -   Se seleccionan **22 instancias** y se registran los rendimientos de las tres versiones **en cada una de esas instancias**.
+    -   Las observaciones de las tres versiones están vinculadas a la misma instancia.
+-   **Análisis:**
+    -   Las mediciones están **relacionadas** porque se evalúan las tres versiones en las mismas instancias.
+    -   Esto implica un diseño de medidas repetidas o bloques, donde cada "bloque" es una instancia y las "tratamientos" son las versiones del algoritmo.
 
 **Conclusión:**
 
-- **Variables Relacionadas (Pareadas):**
-  - Las muestras de rendimientos de las versiones A, B y C son **relacionadas**.
-  - Por lo tanto, se utiliza una prueba adecuada para comparar más de dos muestras relacionadas (en este caso, la **Prueba de Friedman**).
+-   **Variables Relacionadas (Pareadas):**
+    -   Las muestras de rendimientos de las versiones A, B y C son **relacionadas**.
+    -   Por lo tanto, se utiliza una prueba adecuada para comparar más de dos muestras relacionadas (en este caso, la **Prueba de Friedman**).
 
------------
+------------------------------------------------------------------------
 
-- \(H_0:\) 
+-   $H_0:$
 
-- \(H_A:\) 
-
+-   $H_A:$
