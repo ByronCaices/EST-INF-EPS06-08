@@ -9,12 +9,13 @@ output:
     pdf_document: default
 ---
 
+```{=html}
 <style>
 body {
   font-family: 'Calibri', sans-serif;
 }
 </style>
-
+```
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -109,7 +110,7 @@ muestras_C <- sample(datos_filtrados1$tiempo.C, 20)
     -   Por lo tanto, se utiliza una prueba adecuada para comparar dos muestras independientes (en este caso, la **prueba de suma de rangos de Wilcoxon**)\
         \
         Lo anterior se debe a que las muestras **no siguen una distribución normal**, lo cuál se puede apreciar por medio del gráfico QQ y de la prueba de normalidad de Shapiro-Wilk; donde si bien los puntos no se alejan significativamente de la recta en el gráfico QQ, el `p-value` obtenido de la prueba Shapiro-Wilk para el algoritmo A es menor a $0.05$; implicando así que no se pueda aplicar una prueba paramétrica, como lo es la prueba t de Student, y en su lugar optando por una alternativa no paramétrica.
-        
+
 ```{r}
 g_A <- ggqqplot(muestras_A,
                 title = "Gráfico Q-Q para tiempo.A",
@@ -496,10 +497,105 @@ Para responder, filtren los datos para tener las instancias con 50 o más nodos 
 
 -   **Variables Relacionadas (Pareadas):**
     -   Las muestras de rendimientos de las versiones A, B y C son **relacionadas**.
+    -   Tenemos que la variable independiente, osea el rendimiento es categórica y posee 3 niveles A, B y C
+    -   La variable dependiente es ordinal pues es un porcentual
+    -   El enunciado nos permite asegurar que las observaciones son aleatorias e independientes a la población
     -   Por lo tanto, se utiliza una prueba adecuada para comparar más de dos muestras relacionadas (en este caso, la **Prueba de Friedman**).
 
 ------------------------------------------------------------------------
 
--   $H_0:$
+-   $H_0:$ Para las mismas instancias con iguales características, las mejores soluciones tienen rendimientos similares
 
--   $H_A:$
+-   $H_A:$ Para las mismas instancias con iguales caracteristicas, las mejores soluciones tienen distinto rendimiento
+
+------------------------------------------------------------------------
+
+```{r}
+set.seed(71)
+datos_filtrados3 <- datos %>%
+  filter(n.nodos >= 50) %>%
+  select(instancia,mejor.A,mejor.B,mejor.C) %>%
+  sample_n(22)
+
+head(datos_filtrados3)
+```
+
+```{r}
+#Estudio de normalidad Q-Q plot
+qq_plot_A2 <- ggqqplot(datos_filtrados3$mejor.A, 
+                      title = "Gráfico Q-Q para mejor.A",
+                      xlab = "Cuantiles Teóricos",
+                      ylab = "Cuantiles Observados",
+                      color = "blue") +
+  theme_minimal()
+
+qq_plot_B2 <- ggqqplot(datos_filtrados3$mejor.B, 
+                      title = "Gráfico Q-Q para mejor.B",
+                      xlab = "Cuantiles Teóricos",
+                      ylab = "Cuantiles Observados",
+                      color = "green") +
+  theme_minimal()
+
+qq_plot_C2 <- ggqqplot(datos_filtrados3$mejor.C, 
+                      title = "Gráfico Q-Q para mejor.C",
+                      xlab = "Cuantiles Teóricos",
+                      ylab = "Cuantiles Observados",
+                      color = "red") +
+  theme_minimal()
+
+print(qq_plot_A2)
+print(qq_plot_B2)
+print(qq_plot_C2)
+```
+
+```{r}
+p_A <- shapiro.test(datos_filtrados3$mejor.A)$p.value
+
+p_B <- shapiro.test(datos_filtrados3$mejor.B)$p.value
+
+p_C <- shapiro.test(datos_filtrados3$mejor.C)$p.value
+
+print(p_A)
+print(p_B)
+print(p_C)
+
+```
+
+-   $H_{0A}:$ La variable mejor.A sigue una distribución normal.
+
+-   $H_{0B}:$ La variable mejor.B sigue una distribución normal.
+
+-   $H_{0C}:$ La variable mejor.B sigue una distribución normal.
+
+-   $H_{AA}:$ La variable mejor.A no sigue una distribución normal.
+
+-   $H_{AB}:$ La variable mejor.B no sigue una distribución normal.
+
+-   $H_{AC}:$ La variable mejor.B no sigue una distribución normal.
+
+De los gráficos Q-Q plot se pueden observar valores atípicos para los 3 algoritmos y las pruebas de shapiro todas son menores a 0.05, por lo que se puede decir que las muestras no siguen una distribución normal, reafirmando que es buena idea usar la Prueba de Friedman.
+
+```{r}
+
+datos_largos <- datos_filtrados3 %>%
+  pivot_longer(cols = c("mejor.A", "mejor.B", "mejor.C"),
+               names_to = "algoritmo",
+               values_to = "rendimiento")
+head(datos_largos)
+
+prueba <- friedman.test(rendimiento ~ algoritmo | instancia, data = datos_largos)
+print(prueba)
+```
+
+dado a un p-value de 0.001253 se rechaza con un 95% de confianza la hipótesis nula en favor de la alternativa, confirmando las sospechas de la memorista.
+
+```{r}
+post_hoc_f <- pairwise.wilcox.test(datos_largos$rendimiento,
+                                   datos_largos$algoritmo,
+                                   p.adjust.method = "holm",
+                                   paired = TRUE,
+                                   exact = FALSE)
+print(post_hoc_f)
+```
+
+Finalmente se puede observar en base a una prueba post-hoc a un alpha del 0.05, identificar un diferencia significativa para las mismas instancias con las mismas características entre los algoritmos A y B
