@@ -1,0 +1,65 @@
+---
+title: "EP08-respuesta-equipo-3"
+author: "Equipo 3"
+date: "2024-11-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+datos <- read.csv('EP08 Datos CASEN 2017.csv')
+```
+
+# Pregunta 1
+
+# Pregunta 2
+
+Se desea conocer si es que el ingreso per cápita promedio es similar para las personas de sexo Hombre, entre las diferentes comunas de la zona oriente de Santiago ("Providencia", "Ñuñoa", "La Reina", "Las Condes", "Vitacura", "Lo Barnechea")
+
+```{r}
+datos <- datos %>%
+  filter(sexo == "Hombre")
+
+providencia <- datos %>%
+  filter(comuna == "Providencia") %>%
+  distinct(id.vivienda, .keep_all = TRUE) %>%
+  sample_n(size=250) %>%
+  select(ytot)
+
+nunoa <- datos %>%
+  filter(comuna == "Ñuñoa") %>%
+  distinct(id.vivienda, .keep_all = TRUE) %>%
+  sample_n(size=250) %>%
+  select(ytot)
+
+laReina <- datos %>%
+  filter(comuna == "Providencia") %>%
+  distinct(id.vivienda, .keep_all = TRUE) %>%
+  sample_n(size=250) %>%
+  select(ytot)
+
+lasCondes <- datos %>%
+  filter(comuna == "Providencia") %>%
+  distinct(id.vivienda, .keep_all = TRUE) %>%
+  sample_n(size=250) %>%
+  select(ytot)
+
+vitacura <- datos %>%
+  filter(comuna == "Providencia") %>%
+  distinct(id.vivienda, .keep_all = TRUE) %>%
+  sample_n(size=250) %>%
+  select(ytot)
+
+loBarnechea <- datos %>%
+  filter(comuna == "Providencia") %>%
+  distinct(id.vivienda, .keep_all = TRUE) %>%
+  sample_n(size=250) %>%
+  select(ytot)
+
+```
+
+Para ello,
