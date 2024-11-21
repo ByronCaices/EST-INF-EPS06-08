@@ -2,9 +2,20 @@
 title: "EP08-respuesta-equipo-3"
 author: "Equipo 3"
 date: "2024-11-19"
-output: html_document
+output:
+    html_document:
+    highlight: tango
+    word_document: default
+    pdf_document: default
 ---
 
+```{=html}
+<style>
+body {
+  font-family: 'Calibri', sans-serif;
+}
+</style>
+```
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -16,9 +27,13 @@ datos <- read.csv('EP08 Datos CASEN 2017.csv')
 
 # Pregunta 1
 
+> Propongan una pregunta de investigación original, que involucre la comparación de una frecuencia de un evento o característica en dos grupos independientes (más abajo se dan unos ejemplos). Fijando una semilla propia, seleccionen una muestra aleatoria de hogares (100 < n < 150) y respondan la pregunta propuesta utilizando una prueba de permutaciones Monte Carlo. Indicación: creen su propio código, específicamente para este problema, no usen directamente el script del apunte.
+
 # Pregunta 2
 
-Se desea conocer si es que el ingreso per cápita promedio es similar para las personas de sexo Hombre, entre las diferentes comunas de la zona oriente de Santiago ("Providencia", "Ñuñoa", "La Reina", "Las Condes", "Vitacura", "Lo Barnechea")
+> Propongan una pregunta de investigación original, que involucre la comparación de las medias de más de dos grupos independientes (más abajo se dan unos ejemplos). Fijando una semilla distinta a la anterior, seleccionen una muestra aleatoria de hogares (200 < n < 300) y respondan la pregunta propuesta utilizando bootstrapping. Solo por ejercicio académico, aplique un análisis post-hoc con bootstrapping aunque este no fuera necesario. Indicación: consideren que el análisis post-hoc debe hacerse con las mismas remuestras usadas para la prueba ómnibus.
+
+#### **Se desea conocer si es que el ingreso per cápita promedio es similar para las personas de sexo Hombre, entre las diferentes comunas de la zona oriente de Santiago ("Providencia", "Ñuñoa", "La Reina", "Las Condes", "Vitacura", "Lo Barnechea")**
 
 ```{r}
 datos <- datos %>%
