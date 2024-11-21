@@ -36,40 +36,40 @@ datos <- read.csv('EP08 Datos CASEN 2017.csv')
 #### **Se desea conocer si es que el ingreso per cápita promedio es similar para las personas de sexo Hombre, entre las diferentes comunas de la zona oriente de Santiago ("Providencia", "Ñuñoa", "La Reina", "Las Condes", "Vitacura", "Lo Barnechea")**
 
 ```{r}
-datos <- datos %>%
+Hombres <- datos %>%
   filter(sexo == "Hombre")
 
-providencia <- datos %>%
+providencia <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot)
 
-nunoa <- datos %>%
+nunoa <- Hombres %>%
   filter(comuna == "Ñuñoa") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot)
 
-laReina <- datos %>%
+laReina <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot)
 
-lasCondes <- datos %>%
+lasCondes <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot)
 
-vitacura <- datos %>%
+vitacura <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot)
 
-loBarnechea <- datos %>%
+loBarnechea <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
@@ -78,3 +78,21 @@ loBarnechea <- datos %>%
 ```
 
 Para ello,
+
+```{r}
+
+#Pregunta 1: ¿Es similar la proporcion entre mujeres y hombres viudos en los hogares de la comuna de san Joaquín, en la Region Metropolitana?
+
+hombres_hogar_sample <- Hombres %>%
+  filter(comuna == "San Joaquín") %>%
+  distinct(id.vivienda, .keep_all = T) %>%
+  select(id.vivienda, sexo, ecivil) %>%
+  
+  sample_n()
+  
+
+mujeres_hogar <- datos %>%
+  filter(comuna == "San Joaquín" & sexo == "Mujer") %>%
+  distinct(id.vivienda, .keep_all = T)
+```
+
