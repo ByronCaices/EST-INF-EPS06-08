@@ -172,6 +172,81 @@ for (comuna in names(resultados)){
 Tras aplicarlas, se observa que en todas ellas, el `p-value` $< 0.05$, por lo que se rechaza la hipótesis nula en favor de la alternativa, sugiriendo que los datos **no siguen una distribución normal**, por lo que se utiliza *bootstrapping* para la prueba de hipótesis, considerando un nivel de significación $\alpha=0.05$ y $B=5000$
 
 ```{r}
+set.seed(1223)
+
+# Paso 1: Crear un data frame con las observaciones de todas las comunas
+datos_comunas <- data.frame(
+  comuna = rep(names(perCapitaComuna), sapply(perCapitaComuna, length)),
+  ytot = unlist(perCapitaComuna)
+)
+
+# Paso 2: Calcular la media global (hipótesis nula)
+media_nula <- mean(datos_comunas$ytot)
+
+# Paso 3: Función para realizar ANOVA y obtener el estadístico F centrado en la hipótesis nula
+anovafunc <- function(data) {
+  # Restar la media global (hipótesis nula) de las observaciones
+  data$ytot_centrada <- data$ytot - media_nula
+  anova_result <- aov(ytot_centrada ~ comuna, data = data)
+   # Obtener la tabla de resultados de la ANOVA
+  anova_summary <- summary(anova_result)[[1]]  # Este es el data frame de la tabla ANOVA
+  
+  # Extraer el p-valor de la columna Pr(>F)
+  p_value <- anova_summary$`Pr(>F)`[1]  # El p-valor para el efecto de 'comuna'
+  
+  return(p_value)
+}
+
+# Paso 4: Realizar bootstrapping
+n_bootstrap <- 1000
+
+# Crear un vector vacío para los p-valores de bootstrap
+p_values <- numeric(n_bootstrap)
+
+for (i in 1:n_bootstrap) {
+  # Crear una muestra bootstrap (con reemplazo)
+  bootstrap_sample <- datos_comunas[sample(1:nrow(datos_comunas), replace = TRUE), ]
+  
+  # Realizar ANOVA para esta muestra bootstrap centrada
+  p_values[i] <- anovafunc(bootstrap_sample)
+}
+
+# Calcular el p-value empírico
+p_value_proportion <- mean(p_values <= 0.05)
+
+# Resultado
+cat("La proporcion de valores p con bootstrapping con p-value <= 0.05 es:", p_value_proportion, "\n")
+
+```
+
+Ya que se tiene un 47,2% de p-values menor o igual a 0.05, se puede decir con un 95% de confianza que no hay suficiente evidencia para rechazar la hipotesis nula y por lo tanto no hay una diferencia siginificativa entre el ingreso per capita de los hombre entre las comunas ...
+
+```{r}
+# Histograma con ajuste de breaks y densidad
+hist(p_values, 
+     main = "Distribución de p-values Bootstrap (Hipótesis Nula)", 
+     xlab = "P-value", 
+     breaks = 30,  # Número ajustable de breaks
+     col = "lightblue", 
+     probability = TRUE)  # Para mostrar densidad en lugar de conteos
+
+# Agregar la densidad estimada
+lines(density(p_values), col = "blue", lwd = 2)
+
+# Línea vertical para el p-valor de corte (0.05)
+abline(v = 0.05, col = "red", lwd = 2, lty = 2)
+
+legend("topright", 
+       legend = c("p-value 0.05"), 
+       col = "red", 
+       lty = 2, 
+       lwd = 2)
+
+```
+
+
+
+```{r}
 B <- 5000
 set.seed(123)
 
