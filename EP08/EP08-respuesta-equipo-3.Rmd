@@ -19,6 +19,88 @@ datos <- read.csv('EP08 Datos CASEN 2017.csv')
 
 # Pregunta 1
 
+Como pregunta de investigación se propone el saber si la proporción de gente que se esta quedando viuda entre hombres y mujeres es similar, para esto se estudia principalmente a la gente de la comuna de San Joaquín. (Se busca tener un 95% de confianza)
+
+Hipótesis:
+
+$H_0:$ La diferencia entre las proporciones de hombres y mujeres viudas de la región Metropolitana de la comuna de San Joaquín es de cero. ($\mu_M - \mu_H = 0$)
+
+$H_a:$ La diferencia entre las proporciones de hombres y de la región Metropolitana de la comuna de San Joaquín es distinta de cero. ($\mu_M - \mu_H \neq 0$)
+
+Dado a que se esta trabajando con proporciones de hombres y mujeres viudos, se opta por la prueba de permutaciones debido a que permite trabajar datos categoricos sin necesidad de asumir sobre la distribución.
+
+Finalmente como se puede apreciar en el grafico siendo la diferencia observada un valor muy extremo en comparación con la distribución de las diferencias permutadas y en el p-value obtenido se puede asumir con un 95% de confianza de que se rechaza la hipotesis nula en favor de la alternativa de que existe una diferencia significativa entre las proporciones de hombres y mujer viudos en la comuna de San Joaquín.
+
+```{r}
+
+#Pregunta 1: ¿Es similar la proporcion entre mujeres y hombres viudos en los hogares de la comuna de san Joaquín, en la Region Metropolitana?
+
+
+set.seed(1223)
+
+# Muestreo de hombres
+hombres_hogar_sample <- datos %>%
+  filter(comuna == "San Joaquín" & sexo == "Hombre") %>%
+  distinct(id.vivienda, .keep_all = T) %>%
+  select(ecivil) %>%
+  sample_n(120)
+
+# Muestreo de mujeres
+mujeres_hogar_sample <- datos %>%
+  filter(comuna == "San Joaquín" & sexo == "Mujer") %>%
+  distinct(id.vivienda, .keep_all = T) %>%
+  select(ecivil) %>%
+  sample_n(120)
+
+# Proporciones observadas
+proporcion_hombre <- mean(hombres_hogar_sample == "Viudo(a)")
+proporcion_mujer <- mean(mujeres_hogar_sample == "Viudo(a)")
+
+diferencia_observada <- proporcion_mujer - proporcion_hombre
+
+# Configuración para permutaciones
+n_permutaciones <- 10000
+diferencias_permutaciones <- numeric(n_permutaciones)
+
+# Combinar muestras
+muestras_combinadas <- c(hombres_hogar_sample$ecivil, mujeres_hogar_sample$ecivil)
+
+# Bucle para permutaciones
+for (i in 1:n_permutaciones) {
+  
+  muestrasPermutadas <- sample(muestras_combinadas)
+  mujeres <- muestrasPermutadas[1:120]
+  hombres <- muestrasPermutadas[121:240]
+  
+  proporcion_hombre_permutado <- mean(hombres == "Viudo(a)")
+  proporcion_mujer_permutado <- mean(mujeres == "Viudo(a)")
+  
+  diferencias_permutaciones[i] <- proporcion_mujer_permutado - proporcion_hombre_permutado
+}
+
+# Crear un histograma de las diferencias permutadas
+hist(diferencias_permutaciones, 
+     breaks = 30, 
+     col = "lightblue", 
+     main = "Distribución de las diferencias permutadas", 
+     xlab = "Diferencia permutada (mujeres - hombres)")
+
+# Agregar una línea vertical para la diferencia observada
+abline(v = diferencia_observada, col = "red", lwd = 2, lty = 2)
+
+# Agregar texto explicativo
+legend("topright", 
+       legend = c("Diferencia observada"), 
+       col = "red", 
+       lty = 2, 
+       lwd = 2)
+
+p_value <- mean(abs(diferencias_permutaciones) >= abs(diferencia_observada))
+
+p_value
+
+```
+
 # Pregunta 2
 
 Se desea conocer si es que el ingreso per cápita promedio es similar para las personas de sexo Hombre, entre las diferentes comunas de la zona oriente de Santiago ("Providencia", "Ñuñoa", "La Reina", "Las Condes", "Vitacura", "Lo Barnechea")
@@ -26,45 +108,45 @@ Se desea conocer si es que el ingreso per cápita promedio es similar para las p
 Para ello, primero se filtran aquellas observaciones que cumplan con lo solicitado del conjunto de datos `EP08 Datos CASEN 2017.csv`:
 
 ```{r}
-datos <- datos %>%
+Hombres <- datos %>%
   filter(sexo == "Hombre")
 
-providencia <- datos %>%
+providencia <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot) %>%
   pull()
 
-nunoa <- datos %>%
+nunoa <- Hombres %>%
   filter(comuna == "Ñuñoa") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot) %>%
   pull()
 
-laReina <- datos %>%
+laReina <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot) %>%
   pull()
 
-lasCondes <- datos %>%
+lasCondes <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot) %>%
   pull()
 
-vitacura <- datos %>%
+vitacura <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
   select(ytot) %>%
   pull()
 
-loBarnechea <- datos %>%
+loBarnechea <- Hombres %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
