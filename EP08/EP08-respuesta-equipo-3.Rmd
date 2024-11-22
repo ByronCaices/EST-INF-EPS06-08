@@ -10,7 +10,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+library(ez)
 library(dplyr)
+library(boot)
+library(ggpubr)
 datos <- read.csv('EP08 Datos CASEN 2017.csv')
 ```
 
@@ -20,6 +23,8 @@ datos <- read.csv('EP08 Datos CASEN 2017.csv')
 
 Se desea conocer si es que el ingreso per cápita promedio es similar para las personas de sexo Hombre, entre las diferentes comunas de la zona oriente de Santiago ("Providencia", "Ñuñoa", "La Reina", "Las Condes", "Vitacura", "Lo Barnechea")
 
+Para ello, primero se filtran aquellas observaciones que cumplan con lo solicitado del conjunto de datos `EP08 Datos CASEN 2017.csv`:
+
 ```{r}
 datos <- datos %>%
   filter(sexo == "Hombre")
@@ -28,38 +33,95 @@ providencia <- datos %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
-  select(ytot)
+  select(ytot) %>%
+  pull()
 
 nunoa <- datos %>%
   filter(comuna == "Ñuñoa") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
-  select(ytot)
+  select(ytot) %>%
+  pull()
 
 laReina <- datos %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
-  select(ytot)
+  select(ytot) %>%
+  pull()
 
 lasCondes <- datos %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
-  select(ytot)
+  select(ytot) %>%
+  pull()
 
 vitacura <- datos %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
-  select(ytot)
+  select(ytot) %>%
+  pull()
 
 loBarnechea <- datos %>%
   filter(comuna == "Providencia") %>%
   distinct(id.vivienda, .keep_all = TRUE) %>%
   sample_n(size=250) %>%
-  select(ytot)
+  select(ytot) %>%
+  pull()
 
+perCapitaComuna <- list(Providencia = providencia, Ñuñoa = nunoa, LaReina = laReina, LasCondes = lasCondes, Vitacura = vitacura, LoBarnechea = loBarnechea)
 ```
 
-Para ello,
+Seguido de ello, se llevan a cabo pruebas de Shapiro-Wilk sobre las muestras obtenidas para verificar la normalidad de los datos.
+
+```{r}
+alfa <- 0.05
+
+resultados <- lapply(perCapitaComuna, shapiro.test)
+
+for (comuna in names(resultados)){
+  cat("\nShapiro Wilk test para la comuna de", comuna, "\n")
+  print(resultados[[comuna]])
+}
+```
+
+Tras aplicarlas, se observa que en todas ellas, el `p-value` $< 0.05$, por lo que se rechaza la hipótesis nula en favor de la alternativa, sugiriendo que los datos **no siguen una distribución normal**, por lo que se utiliza *bootstrapping* para la prueba de hipótesis, considerando un nivel de significación $\alpha=0.05$ y $B=5000$
+
+```{r}
+B <- 5000
+set.seed(123)
+
+media <- function(valores, i){
+  mean(valores[i])
+}
+
+resultadosBoot <- lapply(perCapitaComuna, function(comuna) {
+  boot(data = comuna, statistic = media, R = B)
+})
+
+for (comuna in names(resultadosBoot)){
+  cat("\nBootstrapping para la comuna de", comuna, "\n")
+  print(resultadosBoot[[comuna]])
+}
+```
+
+De los datos anteriores, es posible obtener el estadístico $F^*$ y $F$ observado, por medio de la prueba ANOVA
+
+```{r}
+dfANOVA <- data.frame(
+  ytot = c(providencia, nunoa, laReina, lasCondes, vitacura, loBarnechea),
+  comuna = factor(rep(
+    c("Providencia", "Ñuñoa", "La Reina", "Las Condes", "Vitacura", "Lo Barnechea"), 
+    each = 250
+  )),
+  instancia = rep(1:250, 6)
+)
+
+ez1 <- ezANOVA(data = dfANOVA, dv = ytot, wid = instancia, between=.(comuna)  ,within = NULL, detailed = TRUE)
+
+F_observado <- ez1[["ANOVA"]][["F"]]
+print(F_observado)
+
+```
